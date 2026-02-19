@@ -3,8 +3,14 @@ from utils.pdf_utils import get_pdf_splits
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_groq import ChatGroq
+from langchain.agents.structured_output import ToolStrategy
+from pydantic import BaseModel
 
 load_dotenv()
+
+class Output(BaseModel):
+    response: str
+
 
 system_prompt = """
 ### ROLE
@@ -33,11 +39,20 @@ pdf_tool = create_pdf_tool(chunks)
 agent = create_agent(
     model= llm,
     tools= [pdf_tool],
-    system_prompt=system_prompt
+    system_prompt=system_prompt,
+    response_format=ToolStrategy(Output),
 )
 
-response = agent.invoke(
+""" response = agent.invoke(
     {"messages": [{"role": "user", "content": "How does hydroponic farming compare to traditional soil-based agriculture? send exactly what has been writing inside the pdf"}]},
-)
+) """
 
-print(response['messages'][-1].content)
+for token, metadata in agent.stream(  
+    input= {"messages": [{"role": "user", "content": "How does hydroponic farming compare to traditional soil-based agriculture? send exactly what has been writing inside the pdf"}]},
+    stream_mode="messages",
+):
+    print(f"node: {metadata['langgraph_step']}")
+    print(f"content: {token.content}")
+    print("\n")
+
+# print(response['messages'][-1].content)

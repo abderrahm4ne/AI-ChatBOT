@@ -1,0 +1,8 @@
+venv
+input.pdf
+.env
+
+pdf_file_creation
+.pyc
+
+__pycache__

@@ -36,23 +36,26 @@ llm = ChatGroq(
 chunks = get_pdf_splits('./assets/input.pdf')
 pdf_tool = create_pdf_tool(chunks)
 
-agent = create_agent(
-    model= llm,
-    tools= [pdf_tool],
-    system_prompt=system_prompt,
-    response_format=ToolStrategy(Output),
-)
+def create_my_agent(pdf_path: str):
+    new_chunks = get_pdf_splits(pdf_path)
+    new_pdf_tool = create_pdf_tool(new_chunks)
+    
+    return create_agent(
+        model=llm,
+        tools=[new_pdf_tool],
+        system_prompt=system_prompt,
+    )
+
+current_agent = create_my_agent('./assets/input.pdf')
 
 """ response = agent.invoke(
     {"messages": [{"role": "user", "content": "How does hydroponic farming compare to traditional soil-based agriculture? send exactly what has been writing inside the pdf"}]},
 ) """
 
+"""
 for token, metadata in agent.stream(  
     input= {"messages": [{"role": "user", "content": "How does hydroponic farming compare to traditional soil-based agriculture? send exactly what has been writing inside the pdf"}]},
     stream_mode="messages",
-):
-    print(f"node: {metadata['langgraph_step']}")
-    print(f"content: {token.content}")
-    print("\n")
 
+"""
 # print(response['messages'][-1].content)

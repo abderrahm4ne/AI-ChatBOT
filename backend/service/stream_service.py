@@ -1,6 +1,6 @@
 import json
 from typing import AsyncGenerator
-from ..agent import current_agent
+from agent import current_agent
 
 async def get_chat_stream(message: str, thread_id: str) -> AsyncGenerator[str, None]:
     """

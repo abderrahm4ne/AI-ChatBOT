@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 from service.stream_service import get_chat_stream
-from agent import create_agent
+from agent import create_my_agent
 import agent
 
 import os, shutil
@@ -47,7 +47,12 @@ async def chat_endpoint(request: ChatRequest):
                 message=request.prompt,
                 thread_id=request.thread_id,
             ),
-            media_type="text/plain"
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -67,7 +72,7 @@ async def upload_def(file: UploadFile):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        agent.current_agent = create_agent(file_path)
+        agent.current_agent = create_my_agent(file_path)
 
         return {
             "message": "File uploaded successfully",

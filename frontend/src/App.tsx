@@ -10,7 +10,7 @@ type ChatMessage = {
 function App() {
 
   return (
-    <div className='h-[100vh] bg-gradient-to-r from-cyan-800 to-cyan-700 flex items-center justify-center'>
+    <div className='bg-gradient-to-r from-cyan-800 to-cyan-700 flex justify-center p-6'>
       <SimpleChat />
     </div>
   )

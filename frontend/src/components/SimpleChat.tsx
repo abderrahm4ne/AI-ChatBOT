@@ -13,10 +13,13 @@ type Message = {
     content: string
 }   
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
     const threadID = useMemo(() => (uuidv4()), []);
 
     const [message, setMessage] = useState<string>('')
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isFileLoading, setIsFileLoading] = useState<boolean>(false)
     const [chatHistory, setChatHistory] = useState<Message[]>([]);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +28,7 @@ type Message = {
         
         const formData = new FormData()
         formData.append("file", selectedFile)
-        setIsLoading(true)
+        setIsFileLoading(true)
         try{
             await fetch('http://localhost:8000/upload-pdf', {
                 method: 'POST',
@@ -37,7 +40,7 @@ type Message = {
             console.error("Error Occured", error)
         }
         finally{
-            setIsLoading(false)
+            setIsFileLoading(false)
         }
     }
 
@@ -85,12 +88,15 @@ type Message = {
 
                 // console.log("New chunk from AI", chunk)
                 const lines = chunk.split("\n")
+                // console.log(lines)
                 for (const line of lines) {
-                    if (!line.startsWith("answer:")) continue
-                    const text = line.replace("data:", "").trim()
+                    // console.log(line)
+                    if (!line.trim()) continue;
+
+                    const text = line.replace("data:", "");
                     if (!text) continue
 
-                    finalText += text + " "
+                    finalText += text 
                     setChatHistory(prev => {
                         const newChat = [...prev]
                         const last = newChat.length - 1
@@ -101,6 +107,7 @@ type Message = {
                         return newChat
                     })
                 }
+                await delay(100);
             }
 
         } catch (error) {
@@ -112,7 +119,7 @@ type Message = {
     }
 
     return(
-        <div className="p-2 px-4 max-w-2xl mx-auto space-y-4 bg-slate-800 flex flex-col rounded-xl min-w-140">
+        <div className="p-2 px-4 mx-auto space-y-4 bg-slate-800 flex flex-col rounded-xl max-w-150">
 
             <div className='flex flex-col gap-0.2'>
                 <h3 className='font-bold text-blue-300 '>RAG AI ChatBOT</h3>
@@ -125,8 +132,8 @@ type Message = {
                     component="label"
                     role={undefined}
                     variant="contained"
-                    startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
-                    disabled={isLoading}
+                    startIcon={isFileLoading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+                    disabled={isFileLoading}
                     tabIndex={-1}
                     sx={{
                         backgroundColor: "#67b3d9",
@@ -143,12 +150,31 @@ type Message = {
 
             </div>
 
-            <div className='border border-[#67b3d9] rounded-md p-4 h-96 overflow-y-auto bg-slate-900 text-white flex flex-col gap-3'>
+            <div className='border border-[#67b3d9] rounded-md p-4 h-110 overflow-y-auto bg-slate-900 text-white flex flex-col gap-3'>
                 {chatHistory.map((msg, i) => (
-                    <div key={i} className={`p-2 rounded-lg max-w-[80%] ${msg.role === 'user' ? 'bg-blue-600 self-end' : 'bg-slate-700 self-start'}`}>
+                    <div
+                        key={i}
+                        className={`flex items-start gap-2 ${
+                        msg.role === "user" ? "justify-end" : "justify-start"
+                        }`}
+                    >
+                        {msg.role === "ai" && (
+                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold">
+                            AI
+                        </div>
+                        )}
+
+                        <div
+                        className={`p-2 rounded-lg max-w-[70%] ${
+                            msg.role === "user"
+                            ? "bg-blue-600 text-white"
+                            : "bg-slate-700 text-white"
+                        }`}
+                        >
                         {msg.content}
+                        </div>
                     </div>
-                ))}
+                    ))}
             </div>
 
             <div className='flex flex-col gap-1'>
@@ -182,6 +208,7 @@ type Message = {
                     variant="contained"
                     endIcon={<SendIcon />}
                     onClick={handleSendMessage}
+                    disabled={isLoading}
                     sx={{
                         backgroundColor: "#67b3d9",
                         textTransform: "none",

@@ -1,7 +1,5 @@
 import SimpleChat from './components/SimpleChat'
 
-
-
 function App() {
 
   return (

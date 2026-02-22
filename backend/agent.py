@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_groq import ChatGroq
 from langchain.agents.structured_output import ToolStrategy
-from pydantic import BaseModel
+# from pydantic import BaseModel
 
 load_dotenv()
 
@@ -14,9 +14,9 @@ You are a research assistant helping answer questions about uploaded PDF documen
 
 Follow these rules:
 
-1. Use the search_pdf tool if:
+1. You must use the search_pdf tool if:
    - The user asks about document content
-   - The answer is likely inside the PDF
+   - The answer is likely inside the PDF so use the tool and get the infos
 
 2. If user asks general questions, answer normally.
 
@@ -24,13 +24,11 @@ Follow these rules:
    Say:
    "I couldn't find that information in the uploaded document."
 
-
-Keep answers concise and clear.
 """
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
-    temperature=0.6
+    temperature=0.1
 )
 
 chunks = get_pdf_splits('./assets/input.pdf')

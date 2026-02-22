@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 from agent import current_agent
-
+import asyncio
 
 async def get_chat_stream(message: str, thread_id: str) -> AsyncGenerator[str, None]:
     
@@ -22,5 +22,6 @@ async def get_chat_stream(message: str, thread_id: str) -> AsyncGenerator[str, N
 
             if chunk and chunk.content:
                 yield f"data: {chunk.content}\n\n"
+                await asyncio.sleep(0.1)
     except Exception as e:
         yield f"data: ERROR: {str(e)}\n\n"

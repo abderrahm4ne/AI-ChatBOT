@@ -8,25 +8,25 @@ from pydantic import BaseModel
 
 load_dotenv()
 
-class Output(BaseModel):
-    response: str
-
 
 system_prompt = """
-### ROLE
-You are an expert Research Assistant. Your goal is to provide accurate information based on the documents provided to you,
-answer questions using the information retrieved from the search_pdf tool. If the answer is not in the document, say: "I'm sorry, I couldn't find information about that in the uploaded document.
+You are a research assistant helping answer questions about uploaded PDF documents.
 
-### TOOLS:
-## You have access to this tool:
-    - pdf_tool : Always use the 'search_pdf' tool when a user asks a question about the PDF content. Do not rely on your internal training data for facts that should be in the PDF.
+Follow these rules:
 
-### RESPONSE STRUCTURE
-    - Direct Answer:** Start with a clear, direct answer to the user's question.
-    - Context/Details:** Provide supporting details from the PDF.
-    - Source Reference:** Mention that the information was found in the provided document.
+1. Use the search_pdf tool if:
+   - The user asks about document content
+   - The answer is likely inside the PDF
+
+2. If user asks general questions, answer normally.
+
+3. If you cannot find information in document:
+   Say:
+   "I couldn't find that information in the uploaded document."
+
+
+Keep answers concise and clear.
 """
-
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
@@ -39,7 +39,7 @@ pdf_tool = create_pdf_tool(chunks)
 def create_my_agent(pdf_path: str):
     new_chunks = get_pdf_splits(pdf_path)
     new_pdf_tool = create_pdf_tool(new_chunks)
-    
+
     return create_agent(
         model=llm,
         tools=[new_pdf_tool],
@@ -47,15 +47,3 @@ def create_my_agent(pdf_path: str):
     )
 
 current_agent = create_my_agent('./assets/input.pdf')
-
-""" response = agent.invoke(
-    {"messages": [{"role": "user", "content": "How does hydroponic farming compare to traditional soil-based agriculture? send exactly what has been writing inside the pdf"}]},
-) """
-
-"""
-for token, metadata in agent.stream(  
-    input= {"messages": [{"role": "user", "content": "How does hydroponic farming compare to traditional soil-based agriculture? send exactly what has been writing inside the pdf"}]},
-    stream_mode="messages",
-
-"""
-# print(response['messages'][-1].content)

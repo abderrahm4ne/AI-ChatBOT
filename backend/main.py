@@ -21,8 +21,8 @@ app.add_middleware(
 )
 
 class ChatRequest(BaseModel):
-    thread_id: str
     prompt: str
+    thread_id: str
 
 class AnswerMessage(BaseModel):
     answer: str

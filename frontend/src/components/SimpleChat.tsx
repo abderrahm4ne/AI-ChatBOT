@@ -20,14 +20,14 @@ type Message = {
     const [chatHistory, setChatHistory] = useState<Message[]>([]);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files[0];
+        const selectedFile = e.target.files?.[0]
         if(!selectedFile) return
         
         const formData = new FormData()
         formData.append("file", selectedFile)
         setIsLoading(true)
         try{
-            const response = await fetch('http://localhost:8000/upload-pdf', {
+            await fetch('http://localhost:8000/upload-pdf', {
                 method: 'POST',
                 body: formData
             })
@@ -42,27 +42,72 @@ type Message = {
     }
 
     const handleSendMessage = async () => {
-        if(!message.trim()) return alert('you must enter a question')
-        
-        const userPrompt: Message = { role: 'user', content: message }
-        setChatHistory(prev => [...prev, userPrompt]);
-        setMessage("")
 
-        try{
+        if (!message.trim()) return alert("Enter a question")
+
+        const userPrompt: Message = {
+            role: "user",
+            content: message
+        }
+
+        setChatHistory(prev => [
+            ...prev,
+            userPrompt,
+            { role: "ai", content: "" }
+        ])
+        
+        setMessage("")
+        setIsLoading(true)
+
+        let finalText = ''
+
+        try {
             const response = await fetch("http://localhost:8000/chat", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
-                    query: userPrompt,
+                    prompt: message,
                     thread_id: threadID
                 })
             })
-            const data = await response.json()
+            const reader = response.body?.getReader()
+            const decoder = new TextDecoder();
 
-            setChatHistory(prev => [...prev, { role: 'ai', content: data.response}])
+            if (!reader) return
+
+            while(true){
+                const { value, done } = await reader.read()
+                if(done) return
+
+                const chunk = decoder.decode(value, { stream: true })
+
+                // console.log("New chunk from AI", chunk)
+                const lines = chunk.split("\n")
+                for (const line of lines) {
+                    if (!line.startsWith("answer:")) continue
+                    const text = line.replace("data:", "").trim()
+                    if (!text) continue
+
+                    finalText += text + " "
+                    setChatHistory(prev => {
+                        const newChat = [...prev]
+                        const last = newChat.length - 1
+
+                        if(newChat[last]?.role === 'ai') {
+                            newChat[last].content = finalText
+                        }
+                        return newChat
+                    })
+                }
+            }
+
+        } catch (error) {
+            console.error("Error sending message", error)
         }
-        catch(error){
-            console.error("Error occured while sending message", error)
+        finally{
+            setIsLoading(false)
         }
     }
 
@@ -98,21 +143,20 @@ type Message = {
 
             </div>
 
-            <main className='border-1 border-[#67b3d9] rounded-md p-1 min-h-100 overflow-y bg-slate-900'>
-                <div className='border border-[#67b3d9] rounded-md p-4 h-96 overflow-y-auto bg-slate-900 text-white flex flex-col gap-3'>
+            <div className='border border-[#67b3d9] rounded-md p-4 h-96 overflow-y-auto bg-slate-900 text-white flex flex-col gap-3'>
                 {chatHistory.map((msg, i) => (
                     <div key={i} className={`p-2 rounded-lg max-w-[80%] ${msg.role === 'user' ? 'bg-blue-600 self-end' : 'bg-slate-700 self-start'}`}>
                         {msg.content}
                     </div>
                 ))}
-                </div>
-            </main>
+            </div>
 
             <div className='flex flex-col gap-1'>
                 <TextField
                     label="Write your question here.."
                     onChange={(e) => setMessage(e.target.value)}
                     multiline
+                    value={message}
                     rows={4}
                     sx={{
                         "& .MuiOutlinedInput-root": {

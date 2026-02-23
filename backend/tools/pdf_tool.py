@@ -1,14 +1,15 @@
-from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.tools import tool
 
 
 def create_pdf_tool(fullSplits):
     embiddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
-    vectoreStore = InMemoryVectorStore.from_texts(
-        fullSplits, embedding=embiddings
+    vectoreStore = FAISS.from_texts(
+        fullSplits,
+        embedding=embiddings
     )
-    retriever = vectoreStore.as_retriever()
+    retriever = vectoreStore.as_retriever(search_kwargs={"k": 5})
 
     @tool
     def search_pdf(query: str) -> str:

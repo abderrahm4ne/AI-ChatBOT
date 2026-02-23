@@ -4,21 +4,21 @@ button:hover{
     cursor: pointer;
 }
 
-::-webkit-scrollbar {
+div ::-webkit-scrollbar {
   width: 5px;
 }
 
-::-webkit-scrollbar-track {
+div ::-webkit-scrollbar-track {
   background: #06090f; /* slate-900 */
   border-radius: 22px;
 }
 
-::-webkit-scrollbar-thumb {
+div ::-webkit-scrollbar-thumb {
   background: #3b82f6; /* blue-500 */
   border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+div ::-webkit-scrollbar-thumb:hover {
   background: #2563eb; /* blue-600 */
   cursor: pointer;
 }

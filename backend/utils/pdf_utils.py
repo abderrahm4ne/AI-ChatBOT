@@ -1,5 +1,12 @@
 from pypdf import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+import re
+
+def clean_text(text:str):
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\s([?.!,])', r'\1', text)
+
+    return text.strip()
 
 
 def get_pdf_splits(input):
@@ -17,7 +24,8 @@ def get_pdf_splits(input):
     for page in reader.pages:
         fullText = page.extract_text() + "\n"
         if fullText:
-            page_chunks = text_splitter.split_text(fullText)
+            cleanedText = clean_text(fullText)
+            page_chunks = text_splitter.split_text(cleanedText)
             all_chunks.extend(page_chunks)
 
     return all_chunks

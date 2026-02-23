@@ -82,7 +82,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
             while(true){
                 const { value, done } = await reader.read()
-                if(done) return
+                if(done) break
 
                 const chunk = decoder.decode(value, { stream: true })
 

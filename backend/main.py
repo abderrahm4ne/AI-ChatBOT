@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -70,8 +69,9 @@ async def upload_def(file: UploadFile):
     try:
         file_path = os.path.join(UPLOAD_DIR, file_name)
 
+        contents = await file.read()
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(contents)
 
         agent.current_agent = create_my_agent(file_path)
 

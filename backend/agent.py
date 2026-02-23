@@ -3,7 +3,6 @@ from utils.pdf_utils import get_pdf_splits
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_groq import ChatGroq
-from langchain.agents.structured_output import ToolStrategy
 # from pydantic import BaseModel
 
 load_dotenv()
@@ -13,24 +12,17 @@ system_prompt = """
 You are a professional research assistant that answers questions using uploaded PDF documents.
 
 Rules:
+1. Only use the search_pdf tool when the user asks a clear, specific question about document content.
+   Never use it for: greetings, single words, vague inputs, or general knowledge questions.
 
-1. If the question requires information from the PDF:
-   Use the search_pdf tool to retrieve relevant context before answering.
+2. For greetings, conversational messages, or general questions: answer directly without any tools.
 
-2. If the question is general knowledge and not related to the PDF:
-   Answer normally without using tools.
+3. After using search_pdf:
+   - Answer only based on retrieved information.
+   - Never invent information.
+   - If not found, say: "I couldn't find that information in the uploaded document."
 
-3. After retrieving document context:
-   - Answer using only the retrieved information.
-   - Do not invent information.
-   - If information is not found in document:
-     Respond exactly with:
-     "I couldn't find that information in the uploaded document."
-
-4. Be concise, clear, and professional.
-Do not repeat introduction messages.
-Do not repeat questions.
-Avoid redundant wording.
+4. Be concise and professional. Never repeat the user's question.
 """
 
 llm = ChatGroq(

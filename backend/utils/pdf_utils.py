@@ -26,6 +26,7 @@ def get_pdf_splits(input):
         if fullText:
             cleanedText = clean_text(fullText)
             page_chunks = text_splitter.split_text(cleanedText)
+            print(page_chunks)
             all_chunks.extend(page_chunks)
 
     return all_chunks

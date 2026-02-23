@@ -2,8 +2,11 @@ from tools.pdf_tool import create_pdf_tool
 from utils.pdf_utils import get_pdf_splits
 from dotenv import load_dotenv
 from langchain.agents import create_agent
-from langchain_groq import ChatGroq
+# from langchain_groq import ChatGroq
 # from pydantic import BaseModel
+from langchain_google_genai import ChatGoogleGenerativeAI
+import os
+
 
 load_dotenv()
 
@@ -18,16 +21,17 @@ Rules:
 2. For greetings, conversational messages, or general questions: answer directly without any tools.
 
 3. After using search_pdf:
+   - Summarize the answer in 1-3 sentences using the retrieved context.
+   - NEVER paste the raw retrieved text directly.
    - Answer only based on retrieved information.
-   - Never invent information.
-   - If not found, say: "I couldn't find that information in the uploaded document."
 
 4. Be concise and professional. Never repeat the user's question.
 """
 
-llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
-    temperature=0.1
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    temperature=0.1,
+    google_api_key=os.getenv("GOOGLE_API_KEY")
 )
 
 def create_my_agent(pdf_path: str):

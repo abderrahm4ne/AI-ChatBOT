@@ -13,11 +13,10 @@ def create_pdf_tool(fullSplits):
 
     @tool
     def search_pdf(query: str) -> str:
-        """Search the uploaded PDF document for specific information. 
-        Use ONLY when the user asks a clear, specific question about document content.
-        Do NOT use for greetings, single words, or vague inputs.
-        Input must be a meaningful search query."""
-        docs = retriever.invoke(query)
+        """Search the uploaded PDF document for a specific answer.
+        Returns only the most relevant passage, not the full document.
+        Input must be a specific question or keyword"""
+        docs = retriever.invoke(query, kwargs=5)
         return "\n\n".join([doc.page_content for doc in docs])
     
     return search_pdf

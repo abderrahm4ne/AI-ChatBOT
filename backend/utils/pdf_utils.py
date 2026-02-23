@@ -14,8 +14,8 @@ def get_pdf_splits(input):
     reader = PdfReader(input)
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size= 1000,
-        chunk_overlap=200,
+        chunk_size= 300,
+        chunk_overlap=50,
         length_function=len,
         is_separator_regex=False,
         separators=["\n\n", "\n", " ", ""]

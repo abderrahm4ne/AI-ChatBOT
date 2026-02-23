@@ -119,7 +119,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
     }
 
     return(
-        <div className="p-2 px-4 mx-auto space-y-4 bg-slate-800 flex flex-col rounded-xl max-w-150">
+        <div className="p-2 px-4 mx-auto space-y-4 bg-slate-800 flex flex-col rounded-xl w-150">
 
             <div className='flex flex-col gap-0.2'>
                 <h3 className='font-bold text-blue-300 '>RAG AI ChatBOT</h3>

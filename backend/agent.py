@@ -16,6 +16,7 @@ Follow these rules:
 
 1. You must use the search_pdf tool if:
    - The user asks about document content
+   - If he ask random question check the data retrieved from the pdf if there is no info you can asnwer normally
    - The answer is likely inside the PDF so use the tool and get the infos
 
 2. If user asks general questions, answer normally.
@@ -24,15 +25,13 @@ Follow these rules:
    Say:
    "I couldn't find that information in the uploaded document."
 
+   
 """
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.1
 )
-
-chunks = get_pdf_splits('./assets/input.pdf')
-pdf_tool = create_pdf_tool(chunks)
 
 def create_my_agent(pdf_path: str):
     new_chunks = get_pdf_splits(pdf_path)

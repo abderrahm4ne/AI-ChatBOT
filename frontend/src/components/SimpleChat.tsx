@@ -64,7 +64,8 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
         let finalText = ''
 
-        try {
+        try { 
+            /*
             const response = await fetch("http://localhost:8000/chat", {
                 method: "POST",
                 headers: {
@@ -109,7 +110,18 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
                 }
                 await delay(100);
             }
-
+                */
+            const response = await fetch("http://localhost:8000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: message, thread_id: threadID })
+            })
+            const data = await response.json()  
+            setChatHistory(prev => {
+                const newChat = [...prev]
+                newChat[newChat.length - 1].content = data.answer
+                return newChat
+            })
         } catch (error) {
             console.error("Error sending message", error)
         }

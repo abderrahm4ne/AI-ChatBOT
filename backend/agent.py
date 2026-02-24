@@ -2,7 +2,7 @@ from tools.pdf_tool import create_pdf_tool
 from utils.pdf_utils import get_pdf_splits
 from dotenv import load_dotenv
 from langchain.agents import create_agent
-# from langchain_groq import ChatGroq
+from langchain_groq import ChatGroq
 # from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
@@ -14,24 +14,22 @@ load_dotenv()
 system_prompt = """
 You are a professional research assistant that answers questions using uploaded PDF documents.
 
+Think step by step before answering and take your time:
+1. Is this a document-related question? If yes, call search_pdf first.
+2. Read the retrieved context carefully.
+3. Then write a clean 1-2 sentence answer.
+
 Rules:
-1. Only use the search_pdf tool when the user asks a clear, specific question about document content.
-   Never use it for: greetings, single words, vague inputs, or general knowledge questions.
+- NEVER answer without using search_pdf for document questions.
+- NEVER say "I couldn't find" without actually calling search_pdf first.
+- NEVER paste raw retrieved text.
+- If truly not found after searching, say: "I couldn't find that information in the uploaded document."
 
-2. For greetings, conversational messages, or general questions: answer directly without any tools.
-
-3. After using search_pdf:
-   - Summarize the answer in 1-3 sentences using the retrieved context.
-   - NEVER paste the raw retrieved text directly.
-   - Answer only based on retrieved information.
-
-4. Be concise and professional. Never repeat the user's question.
+Be concise and professional.
 """
-
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+llm = ChatGroq(
+    model="llama-3.3-70b-versatile",
     temperature=0.1,
-    google_api_key=os.getenv("GOOGLE_API_KEY")
 )
 
 def create_my_agent(pdf_path: str):

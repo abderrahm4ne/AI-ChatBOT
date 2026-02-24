@@ -14,9 +14,8 @@ def create_pdf_tool(fullSplits):
     @tool
     def search_pdf(query: str) -> str:
         """Search the uploaded PDF document for a specific answer.
-        Returns only the most relevant passage, not the full document.
-        Input must be a specific question or keyword"""
-        docs = retriever.invoke(query, kwargs=5)
+        Returns only the most relevant passage, not the full document."""
+        docs = retriever.invoke(query)
         return "\n\n".join([doc.page_content for doc in docs])
     
     return search_pdf

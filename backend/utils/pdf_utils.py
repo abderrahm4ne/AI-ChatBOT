@@ -18,15 +18,15 @@ def get_pdf_splits(input):
         chunk_overlap=50,
         length_function=len,
         is_separator_regex=False,
-        separators=["\n\n", "\n", " ", ""]
+        separators=["\n\n", "\n", ".", " " ,""]
     )
 
     for page in reader.pages:
         fullText = page.extract_text() + "\n"
+        #print('page content : ', fullText)
         if fullText:
             cleanedText = clean_text(fullText)
             page_chunks = text_splitter.split_text(cleanedText)
-            print(page_chunks)
             all_chunks.extend(page_chunks)
 
     return all_chunks

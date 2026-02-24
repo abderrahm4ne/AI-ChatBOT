@@ -6,7 +6,7 @@ from service.stream_service import get_chat_stream
 from agent import create_my_agent
 import agent
 
-import os, shutil
+import os
 
 UPLOAD_DIR = "./assets"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -42,6 +42,17 @@ async def chat_endpoint(request: ChatRequest):
         raise HTTPException(status_code=404, detail="no request provided")
     
     try:
+        # enriched_message = f"{request.prompt}\n\nthink and search with the pdf_tool and take your time"
+        result = agent.current_agent.invoke(
+            input={"messages": [{"role": "user", "content": request.prompt }]},
+            config={"configurable": {"thread_id": request.thread_id}},
+        ) 
+        answer = result["messages"][-1].content
+        print("the answer is : ", answer)
+        if not answer:
+            return {"answer": "Sorry I couldn't generate a repsonse please try again"}
+        return {"answer": answer}
+        """
         return StreamingResponse(
             get_chat_stream(
                 message=request.prompt,
@@ -50,11 +61,14 @@ async def chat_endpoint(request: ChatRequest):
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "X-Accel-Buffering": "no",
+                "Connection": "keep-alive"
             },
         )
+        """
+
+            
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/upload-pdf")
@@ -68,11 +82,6 @@ async def upload_def(file: UploadFile):
     
     try:
         file_path = os.path.join(UPLOAD_DIR, file_name)
-
-        contents = await file.read()
-        with open(file_path, "wb") as buffer:
-            buffer.write(contents)
-
         agent.current_agent = create_my_agent(file_path)
 
         return {

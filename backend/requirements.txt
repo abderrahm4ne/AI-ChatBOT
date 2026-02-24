@@ -1,4 +1,4 @@
-fastapi
+fastapi[standard]
 uvicorn[standard]
 pydantic
 python-dotenv
@@ -6,4 +6,8 @@ langchain
 langchain-groq
 pypdf
 langchain-text-splitters
+langchain-community
+langchain-huggingface
 faiss-cpu
+langchain-google-genai
+sentence-transformers

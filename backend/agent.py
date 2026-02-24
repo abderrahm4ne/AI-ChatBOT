@@ -31,6 +31,12 @@ llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.1,
 )
+"""
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.0-flash",
+    temperature=0.1
+)
+"""
 
 def create_my_agent(pdf_path: str):
     new_chunks = get_pdf_splits(pdf_path)

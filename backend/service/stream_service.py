@@ -3,8 +3,8 @@ import agent
 import asyncio
 
 async def get_chat_stream(message: str, thread_id: str) -> AsyncGenerator[str, None]:
-    
-    if not agent.current_agent:
+    user_agent = agent.agents.get(thread_id)
+    if not user_agent:
         yield "data: ERROR: Upload PDF first\n\n"
         return
     try:

@@ -1,9 +1,8 @@
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 from service.stream_service import get_chat_stream
-from agent import create_my_agent
 import agent
 
 import os
@@ -47,6 +46,7 @@ async def chat_endpoint(request: ChatRequest):
             input={"messages": [{"role": "user", "content": request.prompt }]},
             config={"configurable": {"thread_id": request.thread_id}},
         ) 
+        """
         answer = result["messages"][-1].content
         print("the answer is : ", answer)
         if not answer:
@@ -64,7 +64,6 @@ async def chat_endpoint(request: ChatRequest):
                 "Connection": "keep-alive"
             },
         )
-        """
 
             
     except Exception as e:
@@ -72,7 +71,7 @@ async def chat_endpoint(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/upload-pdf")
-async def upload_def(file: UploadFile):
+async def upload_def(file: UploadFile, thread_id: str = Form()):
     if not file:
         raise HTTPException(status_code=404, detail="no file uploaded")
     
@@ -82,7 +81,10 @@ async def upload_def(file: UploadFile):
     
     try:
         file_path = os.path.join(UPLOAD_DIR, file_name)
-        agent.current_agent = create_my_agent(file_path)
+        contents = await file.read()
+        with open(file_path, "wb") as buffer:
+            buffer.write(contents)
+        agent.agents[thread_id] = agent.create_my_agent(file_path)
 
         return {
             "message": "File uploaded successfully",

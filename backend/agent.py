@@ -6,11 +6,9 @@ from langchain_groq import ChatGroq
 # from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
-
+import threading
 
 load_dotenv()
-
-
 system_prompt = """
 You are a professional research assistant that answers questions using uploaded PDF documents.
 
@@ -27,6 +25,9 @@ Rules:
 
 Be concise and professional.
 """
+
+"""
+
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.1,
@@ -36,7 +37,9 @@ llm = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
     temperature=0.1
 )
-"""
+
+agents = {}
+
 
 def create_my_agent(pdf_path: str):
     new_chunks = get_pdf_splits(pdf_path)

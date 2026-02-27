@@ -28,6 +28,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
         
         const formData = new FormData()
         formData.append("file", selectedFile)
+        formData.append("thread_id", threadID)
         setIsFileLoading(true)
         try{
             await fetch('http://localhost:8000/upload-pdf', {
@@ -65,7 +66,6 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
         let finalText = ''
 
         try { 
-            /*
             const response = await fetch("http://localhost:8000/chat", {
                 method: "POST",
                 headers: {
@@ -110,7 +110,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
                 }
                 await delay(100);
             }
-                */
+               /*
             const response = await fetch("http://localhost:8000/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -122,6 +122,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
                 newChat[newChat.length - 1].content = data.answer
                 return newChat
             })
+                */
         } catch (error) {
             console.error("Error sending message", error)
         }
